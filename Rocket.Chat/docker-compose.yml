@@ -1,0 +1,37 @@
+rocketchat:
+  image: rocketchat/rocket.chat
+  environment:
+    - MONGO_URL=mongodb://mongodb/rocketchat
+    - ROOT_URL=http://192.168.99.101/
+  links:
+    - mongodb
+
+  ports:
+    - 80:3000
+
+mongodb:
+   image: mongo
+   command: mongod --smallfiles
+   ports:
+     - 27017
+
+hubot-rocketchat:
+  image: rocketchat/hubot-rocketchat
+  environment:
+    - ROCKETCHAT_URL=rocketchat:3000
+    - ROCKETCHAT_ROOM=GENERAL,REDMINE
+    - ROCKETCHAT_USER=bot
+    - ROCKETCHAT_PASSWORD=bot
+    - BOT_NAME=cats
+    - EXTERNAL_SCRIPTS=hubot-pugme,hubot-help,hubot-google-images,hubot-google-translate,hubot-maps,hubot-redmine-notifier
+  volumes:
+    - $PWD/scripts:/home/hubot/scripts
+  links:
+    - rocketchat
+  ports:
+    - 8080:8080
+
+
+
+
+
