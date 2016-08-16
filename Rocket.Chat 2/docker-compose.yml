@@ -19,7 +19,7 @@ rocketchat:
   links:
     - mongo:mongo
   ports:
-    - 80:3000
+    - 8081:3000
 
 # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
 hubot:
