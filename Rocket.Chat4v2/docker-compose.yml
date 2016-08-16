@@ -2,7 +2,7 @@ version: '2'
 services:
     mongo:
       image: mongo
-    volumes:
+      volumes:
         - rocket-data:/data/db
         - rocket-data:/dump
       command: mongod --smallfiles --oplogSize 128
