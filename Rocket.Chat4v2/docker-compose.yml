@@ -6,6 +6,7 @@ services:
         - rocket-data:/data/db
         - rocket-data:/dump
       command: mongod --smallfiles --oplogSize 128
+      privileged: true
 
     rocketchat:
       image: rocketchat/rocket.chat:latest
@@ -22,6 +23,7 @@ services:
         - mongo:mongo
       ports:
         - 80:3000
+      privileged: true
 
     # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
     hubot:
@@ -42,6 +44,4 @@ services:
 
 volumes:
   rocket-data:
-    driver: flocker
-  mongo-data:
-    driver: flocker
+    driver: local
