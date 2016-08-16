@@ -2,7 +2,6 @@ rocketchat:
   image: rocketchat/rocket.chat
   environment:
     - MONGO_URL=mongodb://mongodb/rocketchat
-    - ROOT_URL=http://localhost
   links:
     - mongodb
 
