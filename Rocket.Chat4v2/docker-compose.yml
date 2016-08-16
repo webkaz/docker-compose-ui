@@ -3,8 +3,8 @@ services:
     mongo:
       image: mongo
       volumes:
-        - mongo-data:/data/db
-        - mongo-data:/dump
+        - rocket-data:/data/db
+        - rocket-data:/dump
       command: mongod --smallfiles --oplogSize 128
 
     rocketchat:
@@ -42,6 +42,6 @@ services:
 
 volumes:
   rocket-data:
-    driver: local
+    driver: flocker
   mongo-data:
-    driver: local
+    driver: flocker
