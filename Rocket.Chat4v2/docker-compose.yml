@@ -26,7 +26,7 @@ services:
     # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
     hubot:
       image: rocketchat/hubot-rocketchat:v0.1.4
-			# linksで指定する場合は、コンテナ内のポートを指定する。
+      # linksで指定する場合は、コンテナ内のポートを指定する。
       environment:
         - ROCKETCHAT_URL=rocketchat:3000
         - ROCKETCHAT_ROOM=GENERAL
@@ -48,5 +48,5 @@ volumes:
     driver: local
   mongo-data: /d/docker-data/mongo-data
     driver: local
-	mongo-dump: /d/docker-data/mongo-dump
+  mongo-dump: /d/docker-data/mongo-dump
     driver: local
