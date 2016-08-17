@@ -45,8 +45,6 @@ services:
 # マッピングなしの場合は自動でhostOSに指定される。場所は、docker volume inspect で確認可能。
 volumes:
   rocket-updoad: d:/docker-data/rocket-updoad
-    driver: local
   mongo-data: d:/docker-data/mongo-data
-    driver: local
   mongo-dump: d:/docker-data/mongo-dump
-    driver: local
+  
