@@ -3,14 +3,14 @@ services:
     mongo:
       image: mongo
       volumes:
-        - "/d/docker-data/mongo/data/db:/data/db"
-        - "/d/docker-data/mongo/dump:/dump"
+#        - "/d/docker-data/mongo/data/db:/data/db"
+#        - "/d/docker-data/mongo/dump:/dump"
       command: mongod --smallfiles --oplogSize 128
 
     rocketchat:
       image: rocketchat/rocket.chat:0.35.0
       volumes:
-        - "/d/docker-data/rocket/app/uploads:/app/uploads"
+#        - "/d/docker-data/rocket/app/uploads:/app/uploads"
       environment:
         - PORT=3000
         - ROOT_URL=http://localhost
