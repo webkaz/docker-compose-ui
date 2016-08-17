@@ -26,8 +26,8 @@ services:
     # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
     hubot:
       image: rocketchat/hubot-rocketchat:v0.1.4
+			#linksで指定する場合は、コンテナ内のポートを指定する。
       environment:
-				#linksで指定する場合は、コンテナ内のポートを指定する。
         - ROCKETCHAT_URL=rocketchat:3000
         - ROCKETCHAT_ROOM=GENERAL
         - ROCKETCHAT_USER=bot
