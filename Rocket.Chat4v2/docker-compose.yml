@@ -3,15 +3,15 @@ services:
     mongo:
       image: mongo
       volumes:
-        - ${local-mount-root}/mongo/data/db:/data/db
-        - ${local-mount-root}/mongo/data/configdb:/data/configdb
-        - ${local-mount-root}/mongo/dump:/dump
+        - "${local-mount-root}/mongo/data/db":/data/db
+        - "${local-mount-root}/mongo/data/configdb":/data/configdb
+        - "${local-mount-root}/mongo/dump":/dump
       command: mongod --smallfiles --oplogSize 128
 
     rocketchat:
       image: rocketchat/rocket.chat:0.35.0
       volumes:
-        - ${local-mount-root}/rocket/app/uploads:/app/uploads
+        - "${local-mount-root}/rocket/app/uploads":/app/uploads
       environment:
         - PORT=3000
         - ROOT_URL=http://localhost
