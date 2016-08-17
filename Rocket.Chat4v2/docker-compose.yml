@@ -2,14 +2,14 @@ version: '2'
 services:
     mongo:
       image: mongo
-      volumes:
+#      volumes:
 #        - "/d/docker-data/mongo/data/db:/data/db"
 #        - "/d/docker-data/mongo/dump:/dump"
       command: mongod --smallfiles --oplogSize 128
 
     rocketchat:
       image: rocketchat/rocket.chat:0.35.0
-      volumes:
+#      volumes:
 #        - "/d/docker-data/rocket/app/uploads:/app/uploads"
       environment:
         - PORT=3000
