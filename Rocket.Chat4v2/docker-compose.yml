@@ -3,7 +3,7 @@ services:
     mongo:
       image: mongo
       volumes:
-        - mongo-data:/data
+        - /d/docker-data:/data
         - mongo-dump:/dump
       command: mongod --smallfiles --oplogSize 128
 
@@ -26,8 +26,8 @@ services:
     # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
     hubot:
       image: rocketchat/hubot-rocketchat:v0.1.4
-      # linksで指定する場合は、コンテナ内のポートを指定する。
       environment:
+        # linksで指定する場合は、コンテナ内のポートを指定する。
         - ROCKETCHAT_URL=rocketchat:3000
         - ROCKETCHAT_ROOM=GENERAL
         - ROCKETCHAT_USER=bot
@@ -43,8 +43,11 @@ services:
         
 # 各環境ごとにどこにvolumeをマッピングするか定義。hostOS or Winなど。
 # マッピングなしの場合は自動でhostOSに指定される。場所は、docker volume inspect で確認可能。
-volumes:
-  rocket-updoad: //d:/docker-data/rocket-updoad
-  mongo-data: //d:/docker-data/mongo-data
-  mongo-dump: //d:/docker-data/mongo-dump
+#volumes:
+#  rocket-updoad:
+#    driver: local
+#  mongo-data:
+#    driver: local
+#  mongo-dump:
+#    driver: local
   
