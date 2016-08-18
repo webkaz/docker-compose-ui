@@ -3,14 +3,15 @@ services:
     mongo:
       image: mongo
       volumes:
-        - "/d/docker-data/mongo/data/db:/data/db"
-        - "/d/docker-data/mongo/dump:/dump"
+        - mongo-data:/data/db
+        - mongo-configdb:/data/configdb
+        - mongo-dump:/dump
       command: mongod --smallfiles --oplogSize 128
 
     rocketchat:
       image: rocketchat/rocket.chat:0.35.0
-#      volumes:
-#        - "/d/docker-data/rocket/app/uploads:/app/uploads"
+      volumes:
+        - "rocket-updoad:/app/uploads"
       environment:
         - PORT=3000
         - ROOT_URL=http://localhost
@@ -45,9 +46,11 @@ services:
 # マッピングなしの場合は自動でhostOSに指定される。場所は、docker volume inspect で確認可能。
 volumes:
   rocket-updoad:
-      driver: local
-#  mongo-data:
-#    driver: local
-#  mongo-dump:
-#    driver: local
+    driver: local
+  mongo-data:
+    driver: local
+  mongo-configdb:
+    driver: local
+  mongo-dump:
+    driver: local
   
