@@ -2,9 +2,9 @@ version: '2'
 services:
     mongo:
       image: mongo
-#      volumes:
-#        - "/d/docker-data/mongo/data/db:/data/db"
-#        - "/d/docker-data/mongo/dump:/dump"
+      volumes:
+        - "/c/Users/docker-data/mongo/data/db:/data/db"
+        - "/c/Users/docker-data/mongo/dump:/dump"
       command: mongod --smallfiles --oplogSize 128
 
     rocketchat:
