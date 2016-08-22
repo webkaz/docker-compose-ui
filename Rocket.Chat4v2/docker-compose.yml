@@ -1,5 +1,15 @@
 version: '2'
+
 services:
+
+    nginx-proxy:
+      image: jwilder/nginx-proxy
+      container_name: nginx-proxy
+      ports:
+        - "80:80"
+      volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+        
     mongo:
       image: mongo
       volumes:
@@ -11,6 +21,8 @@ services:
     rocketchat:
       image: rocketchat/rocket.chat:0.35.0
       volumes:
+    # .envファイルによる置き換えはできない。exportで環境変数の設定が事前に必要。
+    #    - "${LOCAL_MOUNT_ROOT}/rocket-updoad:/app/uploads"
         - "rocket-updoad:/app/uploads"
       environment:
         - PORT=3000
@@ -19,10 +31,12 @@ services:
     #    - MAIL_URL=smtp://smtp.email
     #    - HTTP_PROXY=http://proxy.domain.com
     #    - HTTPS_PROXY=http://proxy.domain.com
+    # リバプロ自動設定用
+        - VIRTUAL_HOST=rocketchat.127.0.0.1.xip.io
       links:
         - mongo:mongo
       ports:
-        - 80:3000
+        - 3000:3000
 
     # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
     hubot:
