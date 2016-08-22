@@ -2,13 +2,7 @@ version: '2'
 
 services:
 
-    nginx-proxy:
-      image: jwilder/nginx-proxy
-      container_name: nginx-proxy
-      ports:
-        - "80:80"
-      volumes:
-        - /var/run/docker.sock:/tmp/docker.sock:ro
+
         
     mongo:
       image: mongo
@@ -26,7 +20,7 @@ services:
         - "rocket-updoad:/app/uploads"
       environment:
         - PORT=3000
-        - ROOT_URL=http://localhost
+        - ROOT_URL=http://localhost:3000/rocketchat
         - MONGO_URL=mongodb://mongo:27017/rocketchat
     #    - MAIL_URL=smtp://smtp.email
     #    - HTTP_PROXY=http://proxy.domain.com

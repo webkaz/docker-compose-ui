@@ -1,0 +1,44 @@
+version: '2'
+
+services:
+      
+  nginx-proxy:
+    image: sig9/nginx-proxy
+    container_name: nginx-proxy
+    privileged: true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./htpasswd:/etc/nginx/htpasswd
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  letsencrypt-nginx-proxy-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt-nginx-proxy-companion
+    privileged: true
+    volumes:
+      - ./certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - nginx-proxy
+  owncloud:
+    image: owncloud
+    privileged: true
+    volumes:
+        - ./opt/data/owncloud/apps:/var/www/html/apps
+        - ./opt/data/owncloud/config:/var/www/html/config
+        - ./opt/data/owncloud/data:/var/www/html/data
+
+    environment:
+        VIRTUAL_HOST: oc.127.0.0.1.xip.io
+        LETSENCRYPT_HOST: oc.127.0.0.1.xip.io
+        LETSENCRYPT_EMAIL: admin@example.com
+volumes:
+  certs:
+    driver: local
+  htpasswd:
+    driver: local

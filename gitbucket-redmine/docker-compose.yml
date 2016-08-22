@@ -1,37 +1,145 @@
-data-mysql:
-  image: busybox
-data-gitbucket:
-  image: busybox
-data-redmine:
-  image: busybox
-# mysql
-mysql:
-  image: mysql
-  volumes_from:
-    - data-mysql
-  ports:
-    - "3306:3306"
-  environment:
-    MYSQL_ROOT_PASSWORD: password
-# redmine
-redmine:
-  image: sameersbn/redmine:2.6.3
-  volumes_from:
-    - data-gitbucket
-    - data-redmine
-  links:
-    - mysql:mysql
-  environment:
-    REDMINE_RELATIVE_URL_ROOT: /redmine
-    DB_USER: redmine
-    DB_PASS: password
-    SMTP_USER: address@hoge.com
-    SMTP_PASS: password
-# gitbucket
-gitbucket:
-  image: f99aq8ove/gitbucket
-  volumes_from:
-    - data-gitbucket
-  ports:
-    - "29418:29418"
-  command: java -jar /opt/gitbucket.war --prefix=/gitbucket
+version: '2'
+
+services:
+  #初期パスワード admin/admin
+  redmine:
+    ports:
+      - "80:80"
+    image: sameersbn/redmine:3.3.0-3
+    depends_on:
+      - postgresql
+    environment:
+      - TZ=Asia/Tokyo
+      
+      - DB_ADAPTER=postgresql
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_USER=redmine
+      - DB_PASS=password
+
+      - DB_NAME=redmine_production
+      - REDMINE_PORT=10083
+      - REDMINE_HTTPS=false
+      - REDMINE_RELATIVE_URL_ROOT=/redmine
+      - REDMINE_SECRET_TOKEN=
+
+      - REDMINE_SUDO_MODE_ENABLED=false
+      - REDMINE_SUDO_MODE_TIMEOUT=15
+
+      - REDMINE_CONCURRENT_UPLOADS=2
+
+      - REDMINE_BACKUP_SCHEDULE=
+      - REDMINE_BACKUP_EXPIRY=
+      - REDMINE_BACKUP_TIME=
+
+      - SMTP_ENABLED=false
+      - SMTP_METHOD=smtp
+      - SMTP_DOMAIN=www.example.com
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=mailer@example.com
+      - SMTP_PASS=password
+      - SMTP_STARTTLS=true
+      - SMTP_AUTHENTICATION=:login
+
+      - IMAP_ENABLED=false
+      - IMAP_HOST=imap.gmail.com
+      - IMAP_PORT=993
+      - IMAP_USER=mailer@example.com
+      - IMAP_PASS=password
+      - IMAP_SSL=true
+      - IMAP_INTERVAL=30
+    volumes:
+      - ../../mount/redmine/redmine:/home/redmine/data
+      - ../../mount/redmine/log:/ver/log/redmine
+    volumes_from:
+      - gitbucket
+      
+  jenkins:
+    ports:
+      - "8082:8080"
+    image: jenkins:latest
+    environment:
+      - JENKINS_OPTS=--prefix=/jenkins
+    volumes:
+      - ../../mount/jenkins-home:/var/jenkins_home
+    
+  # 初期パスワード root/root
+  gitbucket:
+    ports:
+      - "29418:29418"
+      - "8081:8080"
+    image: f99aq8ove/gitbucket
+    depends_on:
+      - postgresql
+    # /gitbucket/repositories/ 配下にリポジトリができる。例 root/test.git
+    volumes:
+      - ../../mount/gitbucket:/gitbucket
+    command: java -jar /opt/gitbucket.war --prefix=/gitbucket
+    
+  postgresql:
+    image: sameersbn/postgresql:9.5-1
+    environment:
+      - DB_USER=redmine
+      - DB_PASS=password
+      - DB_NAME=redmine_production
+    # dbはwinフォルダにマウントできない。
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+      - postgresql-run:/run/postgresql
+      
+  mongo:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+      - mongo-configdb:/data/configdb
+      - ../../mount/rocket/mongo-dump:/dump
+    command: mongod --smallfiles --oplogSize 128
+
+  rocketchat:
+    image: rocketchat/rocket.chat:0.35.0
+    volumes:
+  # .envファイルによる置き換えはできない。exportで環境変数の設定が事前に必要。
+  #    - "${LOCAL_MOUNT_ROOT}/rocket-updoad:/app/uploads"
+      - ../../mount/rocket/updoad:/app/uploads
+    environment:
+      - PORT=3000
+      - ROOT_URL=http://localhost
+      - MONGO_URL=mongodb://mongo:27017/rocketchat
+  #    - MAIL_URL=smtp://smtp.email
+  #    - HTTP_PROXY=http://proxy.domain.com
+  #    - HTTPS_PROXY=http://proxy.domain.com
+  # リバプロ自動設定用
+      - VIRTUAL_HOST=rocketchat.127.0.0.1.xip.io
+    links:
+      - mongo:mongo
+    ports:
+      - 3000:3000
+
+  # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
+  hubot:
+    image: rocketchat/hubot-rocketchat:v0.1.4
+    environment:
+      # linksで指定する場合は、コンテナ内のポートを指定する。
+      - ROCKETCHAT_URL=rocketchat:3000
+      - ROCKETCHAT_ROOM=GENERAL
+      - ROCKETCHAT_USER=bot
+      - ROCKETCHAT_PASSWORD=botpassword
+      - BOT_NAME=bot
+  # you can add more scripts as you'd like here, they need to be installable by npm
+      - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics
+    links:
+      - rocketchat:rocketchat
+  # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jenkins-notifier
+    ports:
+      - 3001:8080
+# 名前付きボリュームの定義
+volumes:
+  postgresql-data:
+  postgresql-run:
+  mongo-data:
+  mongo-configdb:
+
+
+
+    
