@@ -55,6 +55,17 @@ services:
     volumes_from:
       - gitbucket
       
+  postgresql:
+    image: sameersbn/postgresql:9.5-1
+    environment:
+      - DB_USER=redmine
+      - DB_PASS=password
+      - DB_NAME=redmine_production
+    # dbはwinフォルダにマウントできない。
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+      - postgresql-run:/run/postgresql
+      
   jenkins:
     ports:
       - "8082:8080"
@@ -71,22 +82,22 @@ services:
       - "8081:8080"
     image: f99aq8ove/gitbucket
     depends_on:
-      - postgresql
+      - gitposgre
     # /gitbucket/repositories/ 配下にリポジトリができる。例 root/test.git
     volumes:
       - ../../mount/gitbucket:/gitbucket
     command: java -jar /opt/gitbucket.war --prefix=/gitbucket
     
-  postgresql:
+  gitposgre:
     image: sameersbn/postgresql:9.5-1
     environment:
-      - DB_USER=redmine
+      - DB_USER=gitbucket
       - DB_PASS=password
-      - DB_NAME=redmine_production
+      - DB_NAME=gitbucket
     # dbはwinフォルダにマウントできない。
     volumes:
-      - postgresql-data:/var/lib/postgresql
-      - postgresql-run:/run/postgresql
+      - gitposgre-data:/var/lib/postgresql
+      - gitposgre-run:/run/postgresql
       
   mongo:
     image: mongo
@@ -137,6 +148,8 @@ services:
 volumes:
   postgresql-data:
   postgresql-run:
+  gitposgre-data:
+  gitposgre-run:
   mongo-data:
   mongo-configdb:
 
