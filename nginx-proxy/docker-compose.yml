@@ -1,44 +1,63 @@
 version: '2'
 
 services:
-      
+### nginx-proxy ###
   nginx-proxy:
     image: sig9/nginx-proxy
     container_name: nginx-proxy
-    privileged: true
+    #privileged: true
     ports:
       - 80:80
       - 443:443
     volumes:
-      - ./certs:/etc/nginx/certs:ro
-      - ./htpasswd:/etc/nginx/htpasswd
-      - /etc/nginx/vhost.d
-      - /usr/share/nginx/html
+      - ../../mount/nginx-proxy/certs:/etc/nginx/certs:ro
+      - ../../mount/nginx-proxy/htpasswd:/etc/nginx/htpasswd
+      - ../../mount/nginx-proxy/vhost:/etc/nginx/vhost.d
+      - ../../mount/nginx-proxy/html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-
+      
   letsencrypt-nginx-proxy-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
     container_name: letsencrypt-nginx-proxy-companion
-    privileged: true
+    #privileged: true
     volumes:
-      - ./certs:/etc/nginx/certs:rw
+      - ../../mount/nginx-proxy/certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
     volumes_from:
       - nginx-proxy
+      
+### owncloud ###
   owncloud:
     image: owncloud
     privileged: true
+    links:
+      - ownPosgre:postgres
     volumes:
-        - ./opt/data/owncloud/apps:/var/www/html/apps
-        - ./opt/data/owncloud/config:/var/www/html/config
-        - ./opt/data/owncloud/data:/var/www/html/data
-
+      - ../../mount/owncloud/html:/var/www/html
+      - ../../mount/owncloud/apps:/var/www/html/apps
+      - ../../mount/owncloud/config:/var/www/html/config
+      # winで権限を0770にできないためやむなく名前付きボリューム 
+      - owncloud-data:/var/www/html/data
     environment:
-        VIRTUAL_HOST: oc.127.0.0.1.xip.io
-        LETSENCRYPT_HOST: oc.127.0.0.1.xip.io
-        LETSENCRYPT_EMAIL: admin@example.com
+      VIRTUAL_HOST: owncloud.127.0.0.1.xip.io
+      LETSENCRYPT_HOST: owncloud.127.0.0.1.xip.io
+      LETSENCRYPT_EMAIL: admin@example.com
+      START_MYSQL: 'false'
+      TARGET_SUBDIR: /
+      
+  ownPosgre:
+    image: sameersbn/postgresql:9.5-1
+    environment:
+      - DB_USER=owncloud
+      - DB_PASS=password
+      - DB_NAME=owncloud
+    # dbはwinフォルダにマウントできない。
+    volumes:
+      - ownPosgre-data:/var/lib/postgresql
+      - ownPosgre-run:/run/postgresql
+      
 volumes:
-  certs:
-    driver: local
-  htpasswd:
-    driver: local
+  ### owncloud ###
+  owncloud-data:
+  ownPosgre-data:
+  ownPosgre-run:

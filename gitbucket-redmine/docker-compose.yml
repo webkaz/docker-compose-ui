@@ -53,7 +53,7 @@ services:
       - IMAP_INTERVAL=30
     volumes:
       - ../../mount/redmine/redmine:/home/redmine/data
-      - ../../mount/redmine/log:/ver/log/redmine
+      - ../../mount/redmine/log:/var/log/redmine
     volumes_from:
       - gitbucket
       
