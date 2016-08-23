@@ -1,13 +1,15 @@
 version: '2'
 
 services:
-  #初期パスワード admin/admin
+
+### Redmine ###
+#初期パスワード admin/admin
   redmine:
     ports:
-      - "80:80"
+      - "8083:80"
     image: sameersbn/redmine:3.3.0-3
-    depends_on:
-      - postgresql
+    links:
+      - redPosgre:postgresql
     environment:
       - TZ=Asia/Tokyo
       
@@ -55,7 +57,7 @@ services:
     volumes_from:
       - gitbucket
       
-  postgresql:
+  redPosgre:
     image: sameersbn/postgresql:9.5-1
     environment:
       - DB_USER=redmine
@@ -63,9 +65,10 @@ services:
       - DB_NAME=redmine_production
     # dbはwinフォルダにマウントできない。
     volumes:
-      - postgresql-data:/var/lib/postgresql
-      - postgresql-run:/run/postgresql
-      
+      - redPosgre-data:/var/lib/postgresql
+      - redPosgre-run:/run/postgresql
+  
+### Jenkins ###
   jenkins:
     ports:
       - "8082:8080"
@@ -74,21 +77,22 @@ services:
       - JENKINS_OPTS=--prefix=/jenkins
     volumes:
       - ../../mount/jenkins-home:/var/jenkins_home
-    
-  # 初期パスワード root/root
+
+### Gitbucket ###
+# 初期パスワード root/root
   gitbucket:
     ports:
       - "29418:29418"
       - "8081:8080"
     image: f99aq8ove/gitbucket
-    depends_on:
-      - gitposgre
+    links:
+      - gitPosgre:postgresql
     # /gitbucket/repositories/ 配下にリポジトリができる。例 root/test.git
     volumes:
       - ../../mount/gitbucket:/gitbucket
     command: java -jar /opt/gitbucket.war --prefix=/gitbucket
     
-  gitposgre:
+  gitPosgre:
     image: sameersbn/postgresql:9.5-1
     environment:
       - DB_USER=gitbucket
@@ -96,17 +100,12 @@ services:
       - DB_NAME=gitbucket
     # dbはwinフォルダにマウントできない。
     volumes:
-      - gitposgre-data:/var/lib/postgresql
-      - gitposgre-run:/run/postgresql
+      - gitPosgre-data:/var/lib/postgresql
+      - gitPosgre-run:/run/postgresql
       
-  mongo:
-    image: mongo
-    volumes:
-      - mongo-data:/data/db
-      - mongo-configdb:/data/configdb
-      - ../../mount/rocket/mongo-dump:/dump
-    command: mongod --smallfiles --oplogSize 128
 
+### Rocket.Chat ###
+# 管理ユーザとbotユーザの作成が必要
   rocketchat:
     image: rocketchat/rocket.chat:0.35.0
     volumes:
@@ -123,10 +122,18 @@ services:
   # リバプロ自動設定用
       - VIRTUAL_HOST=rocketchat.127.0.0.1.xip.io
     links:
-      - mongo:mongo
+      - rocketMongo:mongo
     ports:
       - 3000:3000
-
+      
+  rocketMongo:
+    image: mongo
+    volumes:
+      - rocketMongo-data:/data/db
+      - rocketMongo-configdb:/data/configdb
+      - ../../mount/rocket/mongo-dump:/dump
+    command: mongod --smallfiles --oplogSize 128
+    
   # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
   hubot:
     image: rocketchat/hubot-rocketchat:v0.1.4
@@ -144,14 +151,18 @@ services:
   # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jenkins-notifier
     ports:
       - 3001:8080
+      
 # 名前付きボリュームの定義
 volumes:
-  postgresql-data:
-  postgresql-run:
-  gitposgre-data:
-  gitposgre-run:
-  mongo-data:
-  mongo-configdb:
+  ### Redmine ###
+  redPosgre-data:
+  redPosgre-run:
+  ### Gitbucket ###
+  gitPosgre-data:
+  gitPosgre-run:
+  ### Rocket.Chat ###
+  rocketMongo-data:
+  rocketMongo-configdb:
 
 
 
