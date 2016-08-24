@@ -11,6 +11,8 @@ services:
     links:
       - redPosgre:postgresql
     environment:
+      - VIRTUAL_HOST=redmine.*
+    
       - TZ=Asia/Tokyo
       
       - DB_ADAPTER=postgresql
@@ -74,6 +76,10 @@ services:
       - "8082:8080"
     image: jenkins:latest
     environment:
+      - VIRTUAL_HOST=jenkins.*
+      # ポートが複数開いている場合は、プロクシするポートを指定する必要あり
+      - VIRTUAL_PORT=8080
+      
       - JENKINS_OPTS=--prefix=/jenkins
     volumes:
       - ../../mount/jenkins-home:/var/jenkins_home
@@ -84,6 +90,10 @@ services:
     ports:
       - "29418:29418"
       - "8081:8080"
+    environment:
+      - VIRTUAL_HOST=gitbucket.*
+      # ポートが複数開いている場合は、プロクシするポートを指定する必要あり
+      - VIRTUAL_PORT=8080
     image: f99aq8ove/gitbucket
     links:
       - gitPosgre:postgresql
@@ -103,7 +113,6 @@ services:
       - gitPosgre-data:/var/lib/postgresql
       - gitPosgre-run:/run/postgresql
       
-
 ### Rocket.Chat ###
 # 管理ユーザとbotユーザの作成が必要
   rocketchat:
@@ -112,15 +121,16 @@ services:
   # .envファイルによる置き換えはできない。exportで環境変数の設定が事前に必要。
   #    - "${LOCAL_MOUNT_ROOT}/rocket-updoad:/app/uploads"
       - ../../mount/rocket/updoad:/app/uploads
+  # リバプロ自動設定用
     environment:
+      - VIRTUAL_HOST=rocketchat.*
+      
       - PORT=3000
       - ROOT_URL=http://localhost
       - MONGO_URL=mongodb://mongo:27017/rocketchat
   #    - MAIL_URL=smtp://smtp.email
   #    - HTTP_PROXY=http://proxy.domain.com
   #    - HTTPS_PROXY=http://proxy.domain.com
-  # リバプロ自動設定用
-      - VIRTUAL_HOST=rocketchat.127.0.0.1.xip.io
     links:
       - rocketMongo:mongo
     ports:
@@ -163,6 +173,7 @@ volumes:
   ### Rocket.Chat ###
   rocketMongo-data:
   rocketMongo-configdb:
+  
 
 
 

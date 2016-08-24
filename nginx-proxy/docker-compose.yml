@@ -5,7 +5,7 @@ services:
   nginx-proxy:
     image: sig9/nginx-proxy
     container_name: nginx-proxy
-    #privileged: true
+    privileged: true
     ports:
       - 80:80
       - 443:443
@@ -29,7 +29,7 @@ services:
 ### owncloud ###
   owncloud:
     image: owncloud
-    privileged: true
+    #privileged: true
     links:
       - ownPosgre:postgres
     volumes:
@@ -39,9 +39,9 @@ services:
       # winで権限を0770にできないためやむなく名前付きボリューム 
       - owncloud-data:/var/www/html/data
     environment:
-      VIRTUAL_HOST: owncloud.127.0.0.1.xip.io
-      LETSENCRYPT_HOST: owncloud.127.0.0.1.xip.io
-      LETSENCRYPT_EMAIL: admin@example.com
+      VIRTUAL_HOST: owncloud.*
+      #LETSENCRYPT_HOST: owncloud.127.0.0.1.xip.io
+      #LETSENCRYPT_EMAIL: admin@example.com
       START_MYSQL: 'false'
       TARGET_SUBDIR: /
       
