@@ -15,6 +15,7 @@ services:
     links:
       - testLinkDb:mariadb
     environment:
+      VIRTUAL_HOST: testlink.*
       TESTLINK_USERNAME: admin
       TESTLINK_PASSWORD: admin
       TESTLINK_EMAIL: admin@example.com
