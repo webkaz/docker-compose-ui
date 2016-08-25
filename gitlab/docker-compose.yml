@@ -2,12 +2,15 @@ version: '2'
 
 services:
 
-  ### gitlab ###
+### gitlab ###
+  # 初期パスワード root/admin
+  # gitリポジトリは、/home/git/data/repositories配下
   gitlab:
-    image: sameersbn/gitlab:latest
     links:
       - gitlabRedis:redis
       - gitlabPosgre:postgresql
+    container_name: gitlab
+    image: sameersbn/gitlab:latest
     ports:
       - "10080:80"
       - "10022:22"
@@ -42,7 +45,7 @@ services:
       - GITLAB_SECRETS_SECRET_KEY_BASE=long-and-random-alphanumeric-string
       - GITLAB_SECRETS_OTP_KEY_BASE=long-and-random-alphanumeric-string
 
-      - GITLAB_ROOT_PASSWORD=
+      - GITLAB_ROOT_PASSWORD=admin
       - GITLAB_ROOT_EMAIL=
 
       - GITLAB_NOTIFY_ON_BROKEN_BUILDS=true
@@ -135,7 +138,10 @@ services:
     volumes:
       - ../../mount/gitlab/gitlab:/home/git/data:Z
       - ../../mount/gitlab/log:/var/log/gitlab:Z
+      # gitリポジトリを参照させるためのVolume。
+      - ../../mount/git:/home/git/data/repositories:Z
   gitlabPosgre:
+    container_name: gitlabPosgre
     image: sameersbn/postgresql:latest
     environment:
       - DB_USER=gitlab
@@ -146,6 +152,7 @@ services:
       - gitlabPosgre-data:/var/lib/postgresql:Z
       - gitlabPosgre-run:/run/postgresql
   gitlabRedis:
+    container_name: gitlabRedis
     image: sameersbn/redis:latest
     volumes:
       - ../../mount/gitlab/redis:/var/lib/redis:Z

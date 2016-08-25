@@ -1,35 +1,64 @@
-rocketchat:
-  image: rocketchat/rocket.chat
-  environment:
-    - MONGO_URL=mongodb://mongodb/rocketchat
-  links:
-    - mongodb
+version: '2'
 
-  ports:
-    - 80:3000
+services:
 
-mongodb:
-   image: mongo
-   command: mongod --smallfiles
-   ports:
-     - 27017
-
-hubot-rocketchat:
-  image: rocketchat/hubot-rocketchat
-  environment:
-    - ROCKETCHAT_URL=rocketchat:3000
-    - ROCKETCHAT_ROOM=GENERAL,REDMINE
-    - ROCKETCHAT_USER=bot
-    - ROCKETCHAT_PASSWORD=bot
-    - BOT_NAME=cats
-    - EXTERNAL_SCRIPTS=hubot-pugme,hubot-help,hubot-google-images,hubot-google-translate,hubot-maps,hubot-redmine-notifier
-  volumes:
-    - $PWD/scripts:/home/hubot/scripts
-  links:
-    - rocketchat
-  ports:
-    - 8080:8080
-
+### Rocket.Chat ###
+# 管理ユーザとbotユーザの作成が必要
+  rocketchat:
+    links:
+      - rocketMongo:mongo
+    container_name: rocketchat
+    image: rocketchat/rocket.chat:0.35.0
+    volumes:
+  # .envファイルによる置き換えはできない。exportで環境変数の設定が事前に必要。
+  #    - "${LOCAL_MOUNT_ROOT}/rocket-updoad:/app/uploads"
+      - ../../mount/rocket/updoad:/app/uploads
+  # リバプロ自動設定用
+    environment:
+      - VIRTUAL_HOST=rocketchat.*
+      
+      - PORT=3000
+      - ROOT_URL=http://localhost
+      - MONGO_URL=mongodb://mongo:27017/rocketchat
+  #    - MAIL_URL=smtp://smtp.email
+  #    - HTTP_PROXY=http://proxy.domain.com
+  #    - HTTPS_PROXY=http://proxy.domain.com
+    ports:
+      - 3000:3000
+  
+  rocketMongo:
+    container_name: rocketMongo
+    image: mongo
+    volumes:
+      - rocketMongo-data:/data/db
+      - rocketMongo-configdb:/data/configdb
+      - ../../mount/rocket/mongo-dump:/dump
+    command: mongod --smallfiles --oplogSize 128
+    
+  # hubot, the popular chatbot (add the bot user first and change the password before starting this image)
+  hubot:
+    links:
+      - rocketchat:rocketchat
+    container_name: hubot
+    image: rocketchat/hubot-rocketchat:v0.1.4
+    environment:
+      # linksで指定する場合は、コンテナ内のポートを指定する。
+      - ROCKETCHAT_URL=rocketchat:3000
+      - ROCKETCHAT_ROOM=GENERAL
+      - ROCKETCHAT_USER=bot
+      - ROCKETCHAT_PASSWORD=botpassword
+      - BOT_NAME=bot
+  # you can add more scripts as you'd like here, they need to be installable by npm
+      - EXTERNAL_SCRIPTS=hubot-help,hubot-seen,hubot-links,hubot-diagnostics
+  # this is used to expose the hubot port for notifications on the host on port 3001, e.g. for hubot-jenkins-notifier
+    ports:
+      - 3001:8080
+      
+# 名前付きボリュームの定義
+volumes:
+  ### Rocket.Chat ###
+  rocketMongo-data:
+  rocketMongo-configdb:
 
 
 

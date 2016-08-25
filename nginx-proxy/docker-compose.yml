@@ -3,8 +3,8 @@ version: '2'
 services:
 ### nginx-proxy ###
   nginx-proxy:
-    image: sig9/nginx-proxy
     container_name: nginx-proxy
+    image: sig9/nginx-proxy
     privileged: true
     ports:
       - 80:80
@@ -17,47 +17,11 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       
   letsencrypt-nginx-proxy-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes_from:
+      - nginx-proxy
     container_name: letsencrypt-nginx-proxy-companion
+    image: jrcs/letsencrypt-nginx-proxy-companion
     #privileged: true
     volumes:
       - ../../mount/nginx-proxy/certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    volumes_from:
-      - nginx-proxy
-      
-### owncloud ###
-  owncloud:
-    image: owncloud
-    #privileged: true
-    links:
-      - ownPosgre:postgres
-    volumes:
-      - ../../mount/owncloud/html:/var/www/html
-      - ../../mount/owncloud/apps:/var/www/html/apps
-      - ../../mount/owncloud/config:/var/www/html/config
-      # winで権限を0770にできないためやむなく名前付きボリューム 
-      - owncloud-data:/var/www/html/data
-    environment:
-      VIRTUAL_HOST: owncloud.*
-      #LETSENCRYPT_HOST: owncloud.127.0.0.1.xip.io
-      #LETSENCRYPT_EMAIL: admin@example.com
-      START_MYSQL: 'false'
-      TARGET_SUBDIR: /
-      
-  ownPosgre:
-    image: sameersbn/postgresql:9.5-1
-    environment:
-      - DB_USER=owncloud
-      - DB_PASS=password
-      - DB_NAME=owncloud
-    # dbはwinフォルダにマウントできない。
-    volumes:
-      - ownPosgre-data:/var/lib/postgresql
-      - ownPosgre-run:/run/postgresql
-      
-volumes:
-  ### owncloud ###
-  owncloud-data:
-  ownPosgre-data:
-  ownPosgre-run:

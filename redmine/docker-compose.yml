@@ -1,34 +1,80 @@
-postgresql:
-  image: sameersbn/postgresql:latest
-  environment:
-    - DB_USER=redmine
-    - DB_PASS=password
-    - DB_NAME=redmine_production
-  volumes:
-    - /srv/docker/redmine/postgresql:/var/lib/postgresql
-redmine:
-  image: sameersbn/redmine:latest
-  links:
-    - postgresql:postgresql
-  environment:
-    - TZ=Asia/Kolkata
-    - REDMINE_PORT=10083
-    - SMTP_ENABLED=false
-    - SMTP_DOMAIN=www.example.com
-    - SMTP_HOST=smtp.gmail.com
-    - SMTP_PORT=587
-    - SMTP_USER=mailer@example.com
-    - SMTP_PASS=password
-    - SMTP_STARTTLS=true
-    - SMTP_AUTHENTICATION=:login
-    - IMAP_ENABLED=false
-    - IMAP_USER=mailer@example.com
-    - IMAP_PASS=password
-    - IMAP_HOST=imap.gmail.com
-    - IMAP_PORT=993
-    - IMAP_SSL=true
-    - IMAP_INTERVAL=30
-  ports:
-    - "10083:80"
-  volumes:
-    - /srv/docker/redmine/redmine:/home/redmine/data
+version: '2'
+
+services:
+
+### Redmine ###
+#初期パスワード admin/admin
+  redmine:
+    links:
+      - redPosgre:postgresql
+    container_name: redmine
+    ports:
+      - "8083:80"
+    image: sameersbn/redmine:3.3.0-3
+    environment:
+      - VIRTUAL_HOST=redmine.*
+    
+      - TZ=Asia/Tokyo
+      
+      - DB_ADAPTER=postgresql
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_USER=redmine
+      - DB_PASS=password
+
+      - DB_NAME=redmine_production
+      - REDMINE_PORT=10083
+      - REDMINE_HTTPS=false
+      - REDMINE_RELATIVE_URL_ROOT=/redmine
+      - REDMINE_SECRET_TOKEN=
+
+      - REDMINE_SUDO_MODE_ENABLED=false
+      - REDMINE_SUDO_MODE_TIMEOUT=15
+
+      - REDMINE_CONCURRENT_UPLOADS=2
+
+      - REDMINE_BACKUP_SCHEDULE=
+      - REDMINE_BACKUP_EXPIRY=
+      - REDMINE_BACKUP_TIME=
+
+      - SMTP_ENABLED=false
+      - SMTP_METHOD=smtp
+      - SMTP_DOMAIN=www.example.com
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=mailer@example.com
+      - SMTP_PASS=password
+      - SMTP_STARTTLS=true
+      - SMTP_AUTHENTICATION=:login
+
+      - IMAP_ENABLED=false
+      - IMAP_HOST=imap.gmail.com
+      - IMAP_PORT=993
+      - IMAP_USER=mailer@example.com
+      - IMAP_PASS=password
+      - IMAP_SSL=true
+      - IMAP_INTERVAL=30
+    volumes:
+      - ../../mount/redmine/redmine:/home/redmine/data
+      - ../../mount/redmine/log:/var/log/redmine
+      # gitリポジトリを参照するためのVolume。Git側も設定する。
+      - ../../mount/git:/git:ro
+      
+  redPosgre:
+    container_name: redPosgre
+    image: sameersbn/postgresql:9.5-1
+    environment:
+      - DB_USER=redmine
+      - DB_PASS=password
+      - DB_NAME=redmine_production
+    # dbはwinフォルダにマウントできない。
+    volumes:
+      - redPosgre-data:/var/lib/postgresql
+      - redPosgre-run:/run/postgresql
+      
+# 名前付きボリュームの定義
+volumes:
+  ### Redmine ###
+  redPosgre-data:
+  redPosgre-run:
+  

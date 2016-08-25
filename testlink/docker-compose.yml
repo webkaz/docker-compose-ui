@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+
+### TestLink ### 
+#初期パスワード admin/admin
+  testlink:
+    container_name: testlink
+    image: bitnami/testlink:latest
+    ports:
+      - '8084:80'
+    volumes:
+      - ../../testlink/testlink:/bitnami/testlink
+      - ../../testlink/apache:/bitnami/apache
+    links:
+      - testLinkDb:mariadb
+    environment:
+      TESTLINK_USERNAME: admin
+      TESTLINK_PASSWORD: admin
+      TESTLINK_EMAIL: admin@example.com
+      
+  testLinkDb:
+    container_name: testLinkDb
+    image: bitnami/mariadb:latest
+    volumes:
+      - ../../testlink/mariadb:/bitnami/mariadb
+
