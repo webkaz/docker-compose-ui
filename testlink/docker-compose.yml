@@ -10,8 +10,8 @@ services:
     ports:
       - '8084:80'
     volumes:
-      - ../../testlink/testlink:/bitnami/testlink
-      - ../../testlink/apache:/bitnami/apache
+      - ../../mount/testlink/testlink:/bitnami/testlink
+      - ../../mount/testlink/apache:/bitnami/apache
     links:
       - testLinkDb:mariadb
     environment:
@@ -23,5 +23,5 @@ services:
     container_name: testLinkDb
     image: bitnami/mariadb:latest
     volumes:
-      - ../../testlink/mariadb:/bitnami/mariadb
+      - ../../mount/testlink/mariadb:/bitnami/mariadb
 
