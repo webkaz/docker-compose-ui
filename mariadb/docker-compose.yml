@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+
+### mariadb ### 
+  mariadb:
+    container_name: mariadb
+    image: bitnami/mariadb
+    volumes:
+      - ../../mount/mariadb/mariadb:/bitnami/mariadb
+ #     - mariadb-data:/var/lib/mysql
+      # docker-composeの最初のymlがカレントディレクトリになるため、上に戻ってアプリを指定する必要がある。
+#      - ../mariadb/init:/docker-entrypoint-initdb.d
+    environment:
+      MARIADB_ROOT_PASSWORD: admin
+
+  phpmyadmin:
+    links:
+      - mariadb:db
+    image: phpmyadmin/phpmyadmin
+    container_name: myadmin
+    environment:
+      - VIRTUAL_HOST=phpmyadmin.*
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=admin
+    restart: always
+    ports:
+     - 8085:80
+    volumes:
+     - ../../mount/phpmyadmin:/sessions
+     
+volumes:
+  mariadb-data:

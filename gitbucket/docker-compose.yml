@@ -6,7 +6,7 @@ services:
 # 初期パスワード root/root
   gitbucket:
     links:
-      - gitPosgre:postgresql
+      - mariadb:mariadb
     container_name: gitbucket
     ports:
       - "29418:29418"
@@ -21,28 +21,5 @@ services:
       - ../../mount/gitbucket:/gitbucket
       # gitリポジトリを参照させるためのVolume。
       - ../../mount/git:/gitbucket/repositories
-    command: java -jar /opt/gitbucket.war --prefix=/gitbucket
-    
-  gitPosgre:
-    container_name: gitPosgre
-    image: sameersbn/postgresql:9.5-1
-    environment:
-      - DB_USER=gitbucket
-      - DB_PASS=password
-      - DB_NAME=gitbucket
-    # dbはwinフォルダにマウントできない。
-    volumes:
-      - gitPosgre-data:/var/lib/postgresql
-      - gitPosgre-run:/run/postgresql
-      
-# 名前付きボリュームの定義
-volumes:
-  ### Gitbucket ###
-  gitPosgre-data:
-  gitPosgre-run:
-
-  
-
-
-
+    command: java -jar /opt/gitbucket.war --prefix=/
     

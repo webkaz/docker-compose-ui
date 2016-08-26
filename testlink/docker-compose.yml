@@ -13,16 +13,12 @@ services:
       - ../../mount/testlink/testlink:/bitnami/testlink
       - ../../mount/testlink/apache:/bitnami/apache
     links:
-      - testLinkDb:mariadb
+      - mariadb:mariadb
     environment:
       VIRTUAL_HOST: testlink.*
       TESTLINK_USERNAME: admin
       TESTLINK_PASSWORD: admin
       TESTLINK_EMAIL: admin@example.com
+      MARIADB_PASSWORD: admin
       
-  testLinkDb:
-    container_name: testLinkDb
-    image: bitnami/mariadb:latest
-    volumes:
-      - ../../mount/testlink/mariadb:/bitnami/mariadb
 
