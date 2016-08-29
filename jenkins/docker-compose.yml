@@ -13,6 +13,6 @@ services:
       # ポートが複数開いている場合は、プロクシするポートを指定する必要あり
       - VIRTUAL_PORT=8080
       
-      - JENKINS_OPTS=--prefix=/jenkins
+      - JENKINS_OPTS=--prefix=/
     volumes:
       - ../../mount/jenkins-home:/var/jenkins_home

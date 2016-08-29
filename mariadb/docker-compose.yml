@@ -31,5 +31,5 @@ services:
     volumes:
      - ../../mount/phpmyadmin:/sessions
      
-volumes:
-  mariadb-data:
+#volumes:
+#  mariadb-data:
