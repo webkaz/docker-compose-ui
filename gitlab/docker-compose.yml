@@ -21,12 +21,12 @@ services:
 
       - DEBUG=false
 
-      - DB_ADAPTER=mysql2
-      - DB_HOST=mariadb
-#      - DB_PORT=5432
-      - DB_USER=root
-      - DB_PASS=admin
-      - DB_NAME=gitlab
+      - DB_ADAPTER=postgresql
+      - DB_HOST=postgresql
+      - DB_PORT=5432
+      - DB_USER=gitlab
+      - DB_PASS=password
+      - DB_NAME=gitlabhq_production
 
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -145,4 +145,21 @@ services:
     image: sameersbn/redis:latest
     volumes:
       - ../../mount/gitlab/redis:/var/lib/redis:Z
+      
+  gitlabPosgre:
+    container_name: gitlabPosgre
+    image: sameersbn/postgresql:latest
+    environment:
+      - DB_USER=gitlab
+      - DB_PASS=password
+      - DB_NAME=gitlabhq_production
+      - DB_EXTENSION=pg_trgm
+    volumes:
+      - gitlabPosgre-data:/var/lib/postgresql:Z
+      - gitlabPosgre-run:/run/postgresql
 
+# 名前付きボリュームの定義
+volumes:
+  ### Redmine ###
+  gitlabPosgre-data:
+  gitlabPosgre-run:
